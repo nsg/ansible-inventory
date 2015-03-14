@@ -42,6 +42,7 @@ sto-db02.mycorp.ltd
 ```
 
 ```yaml
+---
 
 - hosts: db:&sto
   tasks:
@@ -51,7 +52,8 @@ sto-db02.mycorp.ltd
 
 ... to this:
 
-```
+```yaml
+---
 
 groups:
   - sto-db01.mycorp.ltd
@@ -67,6 +69,7 @@ vars:
 ```
 
 ```yaml
+---
 
 - hosts: db:&sto
   tasks:
@@ -76,7 +79,8 @@ vars:
 
 Try someting a little more complex, lets assume that the 02's are db slaves:
 
-```
+```yaml
+---
 
 groups:
   - sto-db01.mycorp.ltd
@@ -99,6 +103,7 @@ matcher:
 ```
 
 ```yaml
+---
 
 - hosts: db:&sto
   tasks:
