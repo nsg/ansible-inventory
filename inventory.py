@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Define your Ansible inventory in structured yaml. Ansible is basicly yaml
-# and python anyway. I never understood why they choose to introduse toml as
+# Define your Ansible inventory in structured YAML. Ansible is basically YAML
+# and python anyway. I never understood why they choose to introduce TOML as
 # an inventory format.
 #
-# This script was written by Stefan Berggren <nsg@nsg.cc> from insperation
+# This script was written by Stefan Berggren <nsg@nsg.cc> from inspiration
 # from Anton Lindström and Tim Rice. This code is released under the MIT
-# licese.
+# license.
 
 from __future__ import print_function
 import yaml
@@ -55,8 +55,8 @@ def walk_tree_groups(jsn, group="", group_path=[], out={}, matcher=[]):
                         auto_groups.append(var)
                 host = host['name']
 
-            # Scan the host agains matcher and assign it to groups.
-            # This matcher works agains the full hostname.
+            # Scan the host against matcher and assign it to groups.
+            # This matcher works against the full hostname.
             # Example:
             # - regexp: 'myhost[0-9]'
             #   groups:
@@ -75,7 +75,7 @@ def walk_tree_groups(jsn, group="", group_path=[], out={}, matcher=[]):
                     continue
                 auto_groups.append(part)
 
-                # Scan the partial hostname agains the matcher and
+                # Scan the partial hostname against the matcher and
                 # assign groups. This example will assign the group
                 # nyc to sitenyc-myhost01, sto to sitesto-myhost01
                 # and so on ...
