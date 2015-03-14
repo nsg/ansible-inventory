@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Define your Ansible inventory in structured YAML. Ansible is basically YAML
-# and python anyway. I never understood why they choose to introduce TOML as
+# and python anyway. I never understood why they choose to introduce INI as
 # an inventory format.
 #
 # This script was written by Stefan Berggren <nsg@nsg.cc> from inspiration

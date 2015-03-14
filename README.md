@@ -20,7 +20,7 @@ it out.
 
 You can turn this ...
 
-```toml
+```ini
 
 [db:children]
 sto
