@@ -1,0 +1,19 @@
+---
+
+# Example playbook that uses the script
+
+# Run this against pres machines in London
+- hosts: pres:&lon
+  tasks:
+    - debug: msg="{{ website }} -> {{ search }}"
+
+# Run this against all pres machines
+- hosts: pres
+  tasks:
+    - debug: msg="{{ website }} -> {{ search }}"
+
+# Run this agains all external docker hosts, but not
+# the one tagged 'app'.
+- hosts: docker:&ext:!app
+  tasks:
+    - debug: msg="{{ website }} -> {{ search }}"

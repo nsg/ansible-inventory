@@ -1,0 +1,54 @@
+---
+
+# Example inventory
+
+# Make groups from hostname matches
+# This is an optional feature.
+matcher:
+
+  # Search for hostname parts (stoext-docker01 is
+  # splited to the parts 'stoext' and 'docker').
+  # This example will also create the groups 'sto'
+  # and 'ext' on matching hostname parts.
+  - regexp: '(sto|lon)([a-z]+)'
+    part: true
+
+  # This regexp matches against the full hostname
+  # and assigns the group 'int' to matches.
+  - regexp: '(sto|lon)int'
+    groups:
+      - int
+
+# This is the inventory group defination with 
+# hosts. The example below will create the 
+# groups 'site', 'www', 'docker', 'app', 
+# 'site-www', 'site-docker', 'stoprod', 
+# 'lonprod', 'pres', 'stoext' and 'stoint'.
+# (more groups are created in the matcher 
+# rules above)
+groups:
+  site:
+    www:
+      - stoprod-pres01
+      - stoprod-pres02
+      - lonprod-pres01
+      - lonprod-pres02
+    docker:
+      - name: stoext-docker01
+        tags:
+          - app
+      - stoext-docker02
+      - stoint-docker01
+      - stoint-docker02
+      - stoint-docker03
+
+# You can assign inventory variables here,
+# this is parsed after both groups and matcher
+# so all groups are available.
+vars:
+  site:
+    - website=www.mysite.ltd
+  lon:
+    - search=lon.mysite.ltd
+  sto:
+    - search=sto.mysite.ltd
