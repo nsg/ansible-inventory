@@ -1,0 +1,53 @@
+---
+
+- name: "Test partial matcher"
+  hosts: stoprod-pres02
+  tasks:
+    - name: "Check group membership for stoprod-pres02 (1/2)"
+      debug: msg="{{ group_names }}"
+      failed_when: "'{{ item }}' not in group_names"
+      with_items:
+        - www
+        - site
+        - sto
+        - prod
+        - pres
+        - site-www
+    - name: "Check group membership for stoprod-pres02 (2/2)"
+      debug: msg="{{ group_names }}"
+      failed_when: "'{{ item }}' in group_names"
+      with_items:
+        - docker
+        - app
+        - ext
+        - int
+        - lon
+        - site-docker
+
+- name: "Test vars"
+  hosts: lon
+  tasks:
+    - name: "Check 'search' and website for london site"
+      debug: msg={{ search }}
+      failed_when: "search != 'lon.mysite.ltd'"
+
+
+- name: "Test tags"
+  hosts: app
+  tasks:
+    - name: "Make sure that stoext-docker01 belongs to the tag app"
+      debug: msg={{ inventory_hostname }}
+      failed_when: "inventory_hostname != 'stoext-docker01'"
+
+- name: "Test full hostname matches"
+  hosts: stoint-docker01
+  tasks:
+    - name: "Test full hostname matcher"
+      debug: msg="{{ inventory_hostname }}"
+      failed_when: "'internt' not in group_names"
+
+- hosts: site:&pres
+  tasks:
+    - name: "Check group hierarchy"
+      debug: msg={{ website }}
+      failed_when: "website == 'mysite.ltd'"
