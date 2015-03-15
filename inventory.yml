@@ -17,7 +17,7 @@ matcher:
   # and assigns the group 'int' to matches.
   - regexp: '(sto|lon)int'
     groups:
-      - int
+      - internt
 
 # This is the inventory group defination with 
 # hosts. The example below will create the 
@@ -47,6 +47,8 @@ groups:
 # so all groups are available.
 vars:
   site:
+    - website=mysite.ltd
+  www:
     - website=www.mysite.ltd
   lon:
     - search=lon.mysite.ltd
