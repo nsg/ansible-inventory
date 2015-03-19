@@ -25,83 +25,94 @@ def load_file(file_name):
     with open(file_name, 'r') as fh:
         return yaml.load(fh)
 
+def walk_subgroup(jsn, group, group_path, out, matcher):
+    for key in jsn:
+        for (k,v) in walk_tree_groups(jsn[key], key, group_path + [key], matcher=matcher).items():
+            if k in out:
+                out[k]['hosts'] = list(set(out[k]['hosts'] + v['hosts']))
+            else:
+                out[k] = v
+        if group != "":
+            if 'children' in out[group]:
+                out[group]['children'] = out[group]['children'] + [key]
+            else:
+                out[group]['children'] = [key]
+    return out
+
+# Scan the host against matcher and assign it to groups.
+# This matcher works against the full hostname.
+# Example:
+# - regexp: 'myhost[0-9]'
+#   groups:
+#     - myhost
+#
+# _AND_
+#
+# Scan the partial hostname against the matcher and
+# assign groups. This example will assign the group
+# nyc to sitenyc-myhost01, sto to sitesto-myhost01
+# and so on ...
+# Example:
+# - regexp: 'site(nyc|lon|sto)'
+#   part: true
+def matcher_full(matcher, host, auto_groups):
+    for match in matcher:
+        m = re.compile(match['regexp']).match(host)
+        if m:
+            if 'groups' in match:
+                for g in match['groups']:
+                    auto_groups.append(g)
+            if 'part' in match and match['part']:
+                for m2 in m.groups():
+                    auto_groups.append(m2)
+    return auto_groups
+
+def walk_hosts(jsn, group_path, matcher):
+    ret = {}
+    for host in jsn:
+        auto_groups = []
+
+        # Check for key value format
+        # Example:
+        # - name: myhost01
+        if (type(host) == dict):
+            if 'tags' in host:
+                for tag in host['tags']:
+                    auto_groups.append(tag)
+            if 'vars' in host:
+                for var in host['vars']:
+                    auto_groups.append(var)
+            host = host['name']
+
+        auto_groups = matcher_full(matcher, host, auto_groups)
+
+        # Split the hostname down to non-[a-z] groups and
+        # append these groups to the host.
+        for part in re.compile('[^a-z]').split(host):
+            if part == "":
+                continue
+            auto_groups.append(part)
+            auto_groups = matcher_full(matcher, host, auto_groups)
+
+        # Assign the host to all groups generated above.
+        for grp in group_path + auto_groups + ['-'.join(group_path[:i+1]) for i in range(1,len(group_path))]:
+            if grp in ret:
+                ret[grp]['hosts'] = list(set(ret[grp]['hosts'] + [host]))
+            else:
+                ret[grp] = { "hosts": [host] }
+
+    return ret
+
 # Parse 'inventory'
 def walk_tree_groups(jsn, group="", group_path=[], out={}, matcher=[]):
 
     # This is a dict (=group), call my self down the tree
     if type(jsn) == dict:
-        for key in jsn:
-            for (k,v) in walk_tree_groups(jsn[key], key, group_path + [key], matcher=matcher).items():
-                if k in out:
-                    out[k]['hosts'] = list(set(out[k]['hosts'] + v['hosts']))
-                else:
-                    out[k] = v
-            if group != "":
-                if 'children' in out[group]:
-                    out[group]['children'] = out[group]['children'] + [key]
-                else:
-                    out[group]['children'] = [key]
+        out = walk_subgroup(jsn, group, group_path, out, matcher)
 
     # This is a list (=host), parse the host and return the data
     elif type(jsn) == list:
-        ret = {}
-        for host in jsn:
-            auto_groups = []
-
-            # Check for key value format
-            # Example:
-            # - name: myhost01
-            if (type(host) == dict):
-                if 'tags' in host:
-                    for tag in host['tags']:
-                        auto_groups.append(tag)
-                if 'vars' in host:
-                    for var in host['vars']:
-                        auto_groups.append(var)
-                host = host['name']
-
-            # Scan the host against matcher and assign it to groups.
-            # This matcher works against the full hostname.
-            # Example:
-            # - regexp: 'myhost[0-9]'
-            #   groups:
-            #     - myhost
-            for match in matcher:
-                m = re.compile(match['regexp']).match(host)
-                if m:
-                    if 'groups' in match:
-                        for g in match['groups']:
-                            auto_groups.append(g)
-
-            # Split the hostname down to non-[a-z] groups and
-            # append these groups to the host.
-            for part in re.compile('[^a-z]').split(host):
-                if part == "":
-                    continue
-                auto_groups.append(part)
-
-                # Scan the partial hostname against the matcher and
-                # assign groups. This example will assign the group
-                # nyc to sitenyc-myhost01, sto to sitesto-myhost01
-                # and so on ...
-                # Example:
-                # - regexp: 'site(nyc|lon|sto)'
-                #   part: true
-                for match in matcher:
-                    m = re.compile(match['regexp']).match(part)
-                    if m:
-                        if 'part' in match and match['part']:
-                            for m2 in m.groups():
-                                auto_groups.append(m2)
-
-            # Assign the host to all groups generated above.
-            for grp in group_path + auto_groups + ['-'.join(group_path[:i+1]) for i in range(1,len(group_path))]:
-                if grp in ret:
-                    ret[grp]['hosts'] = list(set(ret[grp]['hosts'] + [host]))
-                else:
-                    ret[grp] = { "hosts": [host] }
-
-        return ret
+        return walk_hosts(jsn, group_path, matcher)
     return out
 
 # Scan inventory -> vars for variables and assign them.
