@@ -36,6 +36,11 @@ def walk_tree_groups(jsn, group="", group_path=[], out={}, matcher=[]):
                     out[k]['hosts'] = list(set(out[k]['hosts'] + v['hosts']))
                 else:
                     out[k] = v
+            if group != "":
+                if 'children' in out[group]:
+                    out[group]['children'] = out[group]['children'] + [key]
+                else:
+                    out[group]['children'] = [key]
 
     # This is a list (=host), parse the host and return the data
     elif type(jsn) == list:
