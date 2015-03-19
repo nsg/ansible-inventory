@@ -51,3 +51,9 @@
     - name: "Check group hierarchy"
       debug: msg={{ website }}
       failed_when: "website == 'mysite.ltd'"
+
+- hosts: all
+  tasks:
+    - name: "Make sure that the group 'oin' is missing"
+      debug: msg={{ inventory_hostname }}
+      failed_when: "'oin' in group_names"

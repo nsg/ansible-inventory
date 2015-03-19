@@ -6,18 +6,27 @@
 # This is an optional feature.
 matcher:
 
-  # Search for hostname parts (stoext-docker01 is
-  # splited to the parts 'stoext' and 'docker').
-  # This example will also create the groups 'sto'
-  # and 'ext' on matching hostname parts.
-  - regexp: '(sto|lon)([a-z]+)'
-    part: true
+  # Search in the full hostname, and in hostname 
+  # parts (stoext-docker01 is splited to the parts
+  # 'stoext' and 'docker').
 
-  # This regexp matches against the full hostname
-  # and assigns the group 'int' to matches.
+  # This example will create the groups 'sto', 'ext'
+  # 'prod' and so on ... on matches. Set capture to
+  # True to enable this feature.
+  - regexp: '(sto|lon)([a-z]+)'
+    capture: True
+
+  # Assigns the group 'internt' to matching machines.
   - regexp: '(sto|lon)int'
     groups:
       - internt
+
+  # Assigns the group 'test1' to matching machines,
+  # and do NOT create the group 'oin'.
+  - regexp: 'st(oin)t'
+    capture: false
+    groups:
+      - test1
 
 # This is the inventory group defination with 
 # hosts. The example below will create the 
