@@ -39,6 +39,34 @@ def walk_subgroup(jsn, group, group_path, out, matcher):
                 out[group]['children'] = [key]
     return out
 
+# Scan the host against matcher and assign it to groups.
+# This matcher works against the full hostname.
+# Example:
+# - regexp: 'myhost[0-9]'
+#   groups:
+#     - myhost
+#
+# _AND_
+#
+# Scan the partial hostname against the matcher and
+# assign groups. This example will assign the group
+# nyc to sitenyc-myhost01, sto to sitesto-myhost01
+# and so on ...
+# Example:
+# - regexp: 'site(nyc|lon|sto)'
+#   part: true
+def matcher_full(matcher, host, auto_groups):
+    for match in matcher:
+        m = re.compile(match['regexp']).match(host)
+        if m:
+            if 'groups' in match:
+                for g in match['groups']:
+                    auto_groups.append(g)
+            if 'part' in match and match['part']:
+                for m2 in m.groups():
+                    auto_groups.append(m2)
+    return auto_groups
+
 def walk_hosts(jsn, group_path, matcher):
     ret = {}
     for host in jsn:
@@ -56,18 +84,7 @@ def walk_hosts(jsn, group_path, matcher):
                     auto_groups.append(var)
             host = host['name']
 
-        # Scan the host against matcher and assign it to groups.
-        # This matcher works against the full hostname.
-        # Example:
-        # - regexp: 'myhost[0-9]'
-        #   groups:
-        #     - myhost
-        for match in matcher:
-            m = re.compile(match['regexp']).match(host)
-            if m:
-                if 'groups' in match:
-                    for g in match['groups']:
-                        auto_groups.append(g)
+        auto_groups = matcher_full(matcher, host, auto_groups)
 
         # Split the hostname down to non-[a-z] groups and
         # append these groups to the host.
@@ -75,20 +92,7 @@ def walk_hosts(jsn, group_path, matcher):
             if part == "":
                 continue
             auto_groups.append(part)
-
-            # Scan the partial hostname against the matcher and
-            # assign groups. This example will assign the group
-            # nyc to sitenyc-myhost01, sto to sitesto-myhost01
-            # and so on ...
-            # Example:
-            # - regexp: 'site(nyc|lon|sto)'
-            #   part: true
-            for match in matcher:
-                m = re.compile(match['regexp']).match(part)
-                if m:
-                    if 'part' in match and match['part']:
-                        for m2 in m.groups():
-                            auto_groups.append(m2)
+            auto_groups = matcher_full(matcher, host, auto_groups)
 
         # Assign the host to all groups generated above.
         for grp in group_path + auto_groups + ['-'.join(group_path[:i+1]) for i in range(1,len(group_path))]:
