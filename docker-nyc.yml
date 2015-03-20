@@ -1,0 +1,10 @@
+---
+
+groups:
+  site:
+    docker:
+      - nyctest-docker01
+
+vars:
+  docker:
+    - foo=2

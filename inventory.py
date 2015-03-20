@@ -82,6 +82,7 @@ def walk_hosts(jsn, group_path, matcher):
             if 'vars' in host:
                 for var in host['vars']:
                     auto_groups.append(var)
+
             host = host['name']
 
         auto_groups = matcher_full(matcher, host, auto_groups)
@@ -131,21 +132,34 @@ def walk_tree_vars(json_groups, jsn):
                 for jd in jsn[d]:
                     vp = jd.split("=")
                     v[vp[0]] = vp[1]
-                    json_groups[d]['vars'] = v
+                    if 'vars' in json_groups[d]:
+                        for v2 in json_groups[d]['vars']:
+                            json_groups[d]['vars'][v2] = vp[1]
+                    else:
+                        json_groups[d]['vars'] = v
+    return json_groups
+
+# Parse a file
+def parse(ifile, out={}):
+    json_data = load_file(os.path.dirname(__file__) + "/" + ifile)
+
+    if 'matcher' in json_data:
+        matcher = json_data['matcher']
+    else:
+        matcher = []
+    if 'groups' in json_data:
+        json_groups = walk_tree_groups(json_data['groups'], out=out, matcher=matcher)
+    if 'vars' in json_data:
+        json_groups = walk_tree_vars(json_groups, json_data['vars'])
+    if 'include' in json_data:
+        for f in json_data['include']:
+            parse(f, out)
+
     return json_groups
 
 # main... duh
 def main(argv):
-
-    json_data = load_file(os.path.dirname(__file__) + "/inventory.yml")
-    matcher = json_data['matcher'] or []
-
-    if 'groups' in json_data:
-        json_groups = walk_tree_groups(json_data['groups'], matcher=matcher)
-    if 'vars' in json_data:
-        json_vars = walk_tree_vars(json_groups, json_data['vars'])
-
-    print_json(json_vars)
+    print_json(parse("inventory.yml"))
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

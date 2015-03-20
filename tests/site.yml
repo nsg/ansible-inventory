@@ -46,6 +46,19 @@
       debug: msg="{{ inventory_hostname }}"
       failed_when: "'internt' not in group_names"
 
+- name: "Test includes"
+  hosts: nyctest-docker01
+  tasks:
+    - name: "Make sure that the include works"
+      debug: msg="{{ inventory_hostname }}"
+      failed_when: "'nyctest' not in group_names"
+    - name: "Test var includes (1/2)"
+      debug: msg="{{ foo }}"
+      failed_when: "foo == '1'"
+    - name: "Test var includes (2/2)"
+      debug: msg="{{ bar }}"
+      failed_when: "bar is not defined"
+
 - hosts: site:&pres
   tasks:
     - name: "Check group hierarchy"
