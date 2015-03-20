@@ -70,3 +70,9 @@
     - name: "Make sure that the group 'oin' is missing"
       debug: msg={{ inventory_hostname }}
       failed_when: "'oin' in group_names"
+
+- hosts: stoint-docker02
+  tasks:
+    - name: "Test inline hostvars"
+      debug: msg={{ baz }}
+      failed_when: "baz is not defined"

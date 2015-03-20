@@ -37,6 +37,9 @@ import json
 import sys
 import re
 import os
+import argparse
+
+_meta = { "_meta": { "hostvars": {} } }
 
 # Nice output
 def print_json(data):
@@ -75,6 +78,8 @@ def matcher_full(matcher, host, auto_groups):
     return auto_groups
 
 def walk_hosts(jsn, group_path, matcher):
+    global _meta
+
     ret = {}
     for host in jsn:
         auto_groups = []
@@ -86,6 +91,12 @@ def walk_hosts(jsn, group_path, matcher):
             if 'tags' in host:
                 for tag in host['tags']:
                     auto_groups.append(tag)
+            if 'vars' in host:
+                for hv in host['vars']:
+                    hvp = hv.split("=")
+                    if host['name'] not in _meta['_meta']['hostvars']:
+                        _meta['_meta']['hostvars'][host['name']] = {}
+                    _meta['_meta']['hostvars'][host['name']][hvp[0]] = hvp[1]
 
             host = host['name']
 
@@ -165,7 +176,23 @@ def parse(ifile, out={}):
 
 # main... duh
 def main(argv):
-    print_json(parse("inventory.yml"))
+    global _meta
+
+    parser = argparse.ArgumentParser(description='Ansible Inventory System')
+    parser.add_argument('--list', help='List all inventory groups', action="store_true")
+    parser.add_argument('--host', help='List vars for a host')
+    args = parser.parse_args()
+
+    jret = parse("inventory.yml")
+
+    if args.list:
+        jret['_meta'] = _meta['_meta']
+        print_json(jret)
+    if args.host:
+        if args.host in _meta['_meta']['hostvars']:
+            print_json(_meta['_meta']['hostvars'][args.host])
+        else:
+            print_json({})
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

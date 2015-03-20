@@ -48,7 +48,9 @@ groups:
           - app
       - stoext-docker02
       - stoint-docker01
-      - stoint-docker02
+      - name: stoint-docker02
+        vars:
+          - baz=1
       - stoint-docker03
 
 # Include and parse more files. This is included and parsed
