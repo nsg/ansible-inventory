@@ -7,7 +7,4 @@ install:
   - pip install ansible
 
 script:
-  - ansible-playbook -i inventory.ini -c local tests/site.yml | tee /tmp/out
-  - grep -v skipping /tmp/out
-  - ansible-playbook -i inventory.py -c local tests/site.yml | tee /tmp/out
-  - grep -v skipping /tmp/out
+  - test.sh
