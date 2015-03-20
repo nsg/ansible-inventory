@@ -7,4 +7,4 @@ install:
   - pip install ansible
 
 script:
-  - test.sh
+  - ./test.sh
