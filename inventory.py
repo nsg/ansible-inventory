@@ -86,9 +86,6 @@ def walk_hosts(jsn, group_path, matcher):
             if 'tags' in host:
                 for tag in host['tags']:
                     auto_groups.append(tag)
-            if 'vars' in host:
-                for var in host['vars']:
-                    auto_groups.append(var)
 
             host = host['name']
 
