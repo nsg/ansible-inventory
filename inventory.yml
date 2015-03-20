@@ -51,6 +51,12 @@ groups:
       - stoint-docker02
       - stoint-docker03
 
+# Include and parse more files. This is included and parsed
+# after this page. Matches and vars are overwritten.
+# Groups are merged.
+include:
+  - docker-nyc.yml
+
 # You can assign inventory variables here,
 # this is parsed after both groups and matcher
 # so all groups are available.
@@ -63,3 +69,6 @@ vars:
     - search=lon.mysite.ltd
   sto:
     - search=sto.mysite.ltd
+  docker:
+    - foo=1
+    - bar=1
