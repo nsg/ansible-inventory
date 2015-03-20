@@ -141,7 +141,8 @@ def walk_tree_vars(json_groups, jsn):
                     v[vp[0]] = vp[1]
                     if 'vars' in json_groups[d]:
                         for v2 in json_groups[d]['vars']:
-                            json_groups[d]['vars'][v2] = vp[1]
+                            if v2 == vp[0]:
+                                json_groups[d]['vars'][v2] = vp[1]
                     else:
                         json_groups[d]['vars'] = v
     return json_groups
