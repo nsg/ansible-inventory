@@ -150,6 +150,7 @@ def walk_tree_vars(json_groups, jsn):
 # Parse a file
 def parse(ifile, out={}):
     json_data = load_file(os.path.dirname(__file__) + "/" + ifile)
+    json_groups = {}
 
     if 'matcher' in json_data:
         matcher = json_data['matcher']
