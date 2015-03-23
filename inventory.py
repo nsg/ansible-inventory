@@ -156,21 +156,19 @@ def walk_tree_vars(json_groups, jsn):
     return json_groups
 
 # Parse a file
-def parse(ifile, out={}):
+def parse(ifile, out={}, matcher=[]):
     json_data = load_file(os.path.dirname(__file__) + "/" + ifile)
     json_groups = {}
 
     if 'matcher' in json_data:
-        matcher = json_data['matcher']
-    else:
-        matcher = []
+      matcher = json_data['matcher'] + matcher
     if 'groups' in json_data:
         json_groups = walk_tree_groups(json_data['groups'], out=out, matcher=matcher)
     if 'vars' in json_data:
         json_groups = walk_tree_vars(json_groups, json_data['vars'])
     if 'include' in json_data:
         for f in json_data['include']:
-            parse(f, out)
+            parse(f, out, matcher)
 
     return json_groups
 
