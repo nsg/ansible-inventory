@@ -25,8 +25,7 @@ groups:
       - stoext-docker02
       - stoint-docker01
       - name: stoint-docker02
-        vars:
-          - baz=3
+        baz: 3
       - stoint-docker03
 
 include:

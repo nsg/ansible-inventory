@@ -98,16 +98,24 @@ def walk_hosts(jsn, group_path, matcher):
         # Example:
         # - name: myhost01
         if (type(host) == dict):
-            if 'tags' in host:
-                for tag in host['tags']:
-                    auto_groups.append(tag)
-            if 'vars' in host:
-                for hv in host['vars']:
-                    hvp = hv.split("=")
-                    if host['name'] not in _meta['_meta']['hostvars']:
-                        _meta['_meta']['hostvars'][host['name']] = {}
-                    _meta['_meta']['hostvars'][host['name']][hvp[0]] = to_num_if(hvp[1])
+            for hk,hv in host.items():
 
+                # Reserved keywords
+                if hk == "name":
+                    continue
+                if hk == "tags":
+                    for tag in host['tags']:
+                        auto_groups.append(tag)
+                    continue
+
+                if host['name'] not in _meta['_meta']['hostvars']:
+                    _meta['_meta']['hostvars'][host['name']] = {}
+                if hk not in _meta['_meta']['hostvars'][host['name']]:
+                    _meta['_meta']['hostvars'][host['name']][hk] = {}
+                _meta['_meta']['hostvars'][host['name']][hk] = to_num_if(hv)
+
+            # Overwrite host so we can continue like we used
+            # '- hostname' syntax.
             host = host['name']
 
         auto_groups = matcher_full(matcher, host, auto_groups)
@@ -132,7 +140,7 @@ def walk_hosts(jsn, group_path, matcher):
 # Parse 'inventory'
 def walk_tree_groups(jsn, group="", group_path=[], out={}, matcher=[]):
 
-    # This is a dict (=group), call my self down the tree
+    # This is a dict (group or variable), call my self down the tree
     if type(jsn) == dict:
         out = walk_subgroup(jsn, group, group_path, out, matcher)
 
