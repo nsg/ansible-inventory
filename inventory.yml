@@ -1,40 +1,16 @@
 ---
 
-# Example inventory
-
-# Make groups from hostname matches
-# This is an optional feature.
 matcher:
-
-  # Search in the full hostname, and in hostname 
-  # parts (stoext-docker01 is splited to the parts
-  # 'stoext' and 'docker').
-
-  # This example will create the groups 'sto', 'ext'
-  # 'prod' and so on ... on matches. Set capture to
-  # True to enable this feature.
   - regexp: '(sto|lon)([a-z]+)'
     capture: True
-
-  # Assigns the group 'internt' to matching machines.
   - regexp: '(sto|lon)int'
     groups:
       - internt
-
-  # Assigns the group 'test1' to matching machines,
-  # and do NOT create the group 'oin'.
   - regexp: 'st(oin)t'
     capture: false
     groups:
       - test1
 
-# This is the inventory group defination with 
-# hosts. The example below will create the 
-# groups 'site', 'www', 'docker', 'app', 
-# 'site-www', 'site-docker', 'stoprod', 
-# 'lonprod', 'pres', 'stoext' and 'stoint'.
-# (more groups are created in the matcher 
-# rules above)
 groups:
   site:
     www:
@@ -50,18 +26,12 @@ groups:
       - stoint-docker01
       - name: stoint-docker02
         vars:
-          - baz=1
+          - baz=3
       - stoint-docker03
 
-# Include and parse more files. This is included and parsed
-# after this page. Matches and vars are overwritten.
-# Groups are merged.
 include:
   - docker-nyc.yml
 
-# You can assign inventory variables here,
-# this is parsed after both groups and matcher
-# so all groups are available.
 vars:
   site:
     - website=mysite.ltd
