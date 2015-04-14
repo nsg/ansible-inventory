@@ -38,51 +38,22 @@ from ansible.inventory import Inventory
 
 class AnsibleInventoryTests(unittest.TestCase):
 
-    yml_inv = Inventory("inventory.py")
-    ini_inv = Inventory("inventory.ini")
+    yml_inv = Inventory("{}/inv.sh".format(os.path.dirname(__file__)))
 
-    ##
-    # Compare the INI and YAML inventory.
-    ##
-
-    def check_var(self, host):
-        yml = self.yml_inv.get_variables(host)
-        ini = self.ini_inv.get_variables(host)
-        self.assertDictEqual(yml, ini, 
-                msg="Failed on {}\nYML: {}\nINI: {}".format(host, yml, ini))
+    def test_check_host_vars_and_groups(self):
+        yml = self.yml_inv.get_variables("myhost1.example.com")
+        result = {
+            'inventory_hostname': u'myhost1.example.com',
+            'group_names': [u'com', u'example', u'myhost', u'root', u'root-docker'],
+            'inventory_hostname_short': u'myhost1'
+            }
+        self.assertDictEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
 
     def test_list_hosts(self):
         yml = sorted(self.yml_inv.list_hosts())
-        ini = sorted(self.ini_inv.list_hosts())
-        self.assertListEqual(yml, ini, msg="\nYML: {}\nINI: {}".format(yml, ini))
-
-    def test_check_vars_and_groups(self):
-        for host in self.yml_inv.list_hosts():
-            self.check_var(host)
-
-    ##
-    # Make specific tests on the YAML inventory
-    ##
-
-    def test_var_on_matcher_groups(self):
-        yml = self.yml_inv.get_variables("lonprod-pres02")
-        self.assertEqual(yml['search'], 'lon.mysite.ltd',
-                msg="search was not 'lon.mysite.ltd'")
-
-    def test_var_on_host(self):
-        yml = self.yml_inv.get_variables("stoint-docker02")
-        self.assertEqual(yml['baz'], 3,
-                msg="baz was not 3")
-
-    def test_hash_merge(self):
-        yml = self.yml_inv.get_variables("stoint-docker02")
-        self.assertEqual(yml['bar'], 1,
-                msg="bar was not 1")
-
-    def test_hash_merge_and_overwrite(self):
-        yml = self.yml_inv.get_variables("nyctest-docker01")
-        self.assertEqual(yml['foo'], 2,
-                msg="foo was not 2")
+        result = [u'myhost1.example.com', u'myhost2.example.com']
+        self.assertListEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
 
 if __name__ == '__main__':
-        unittest.main(verbosity=2)
+    print("\n### Execute test {}\n".format( __file__))
+    unittest.main(verbosity=2)

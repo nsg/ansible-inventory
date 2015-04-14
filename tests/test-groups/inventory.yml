@@ -1,0 +1,11 @@
+---
+
+groups:
+  docker:
+    hosts:
+      - myhost1.example.com
+    site_a:
+      - myhost2.example.com
+    site_b:
+      my_foo_group:
+        - myhost3.example.com

@@ -1,0 +1,4 @@
+hosts:
+  - myhost1.example.com
+vars:
+  dvar: 2

@@ -1,0 +1,9 @@
+---
+
+groups:
+  docker:
+    hosts:
+      - myhost1.example.com
+      - name: myhost2.example.com
+        number: 1
+        string: "foo"

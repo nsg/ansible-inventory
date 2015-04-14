@@ -1,0 +1,7 @@
+---
+
+groups:
+  docker:
+    hosts:
+      - myhost1.example.com
+      - myhost2.example.com

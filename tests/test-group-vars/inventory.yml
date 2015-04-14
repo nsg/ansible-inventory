@@ -1,0 +1,14 @@
+---
+
+groups:
+  docker:
+    hosts:
+      - myhost1.example.com
+      - name: myhost2.example.com
+        version: 2.0
+    vars:
+      version: 1.6
+  vars:
+    version: 1.0
+  hosts:
+    - myhost3.example.com

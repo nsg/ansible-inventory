@@ -1,0 +1,17 @@
+---
+
+matcher:
+  - regexp: '(sto|lon)([a-z]+)'
+    capture: True
+  - regexp: '(sto|lon)www'
+    groups:
+      - site
+  - regexp: 'st(ow)ww'
+    capture: False
+    groups:
+      - test
+
+groups:
+  - stowww1.example.com
+  - lonwww2.example.com
+  - londb3.example.com
