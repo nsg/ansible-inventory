@@ -50,6 +50,16 @@ def load_file(file_name):
     with open(file_name, 'r') as fh:
         return yaml.load(fh)
 
+def to_num_if(n):
+    try:
+        return int(n)
+    except:
+        pass
+    try:
+        return float(n)
+    except:
+        return n
+
 def walk_subgroup(jsn, group, group_path, out, matcher):
     for key in jsn:
         for (k,v) in walk_tree_groups(jsn[key], key, group_path + [key], matcher=matcher).items():
@@ -96,7 +106,7 @@ def walk_hosts(jsn, group_path, matcher):
                     hvp = hv.split("=")
                     if host['name'] not in _meta['_meta']['hostvars']:
                         _meta['_meta']['hostvars'][host['name']] = {}
-                    _meta['_meta']['hostvars'][host['name']][hvp[0]] = hvp[1]
+                    _meta['_meta']['hostvars'][host['name']][hvp[0]] = to_num_if(hvp[1])
 
             host = host['name']
 
@@ -150,9 +160,9 @@ def walk_tree_vars(json_groups, jsn):
                     if 'vars' in json_groups[d]:
                         for v2 in json_groups[d]['vars']:
                             if v2 == vp[0]:
-                                json_groups[d]['vars'][v2] = vp[1]
+                                json_groups[d]['vars'][v2] = to_num_if(vp[1])
                     else:
-                        json_groups[d]['vars'] = v
+                        json_groups[d]['vars'] = to_num_if(v)
     return json_groups
 
 # Parse a file
