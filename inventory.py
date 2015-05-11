@@ -39,7 +39,10 @@ import re
 import os
 import argparse
 
-_meta = { "_meta": { "hostvars": {} } }
+_data = { "root": {}, "_meta" : { "hostvars": {} }}
+_matcher = {}
+_hostlog = []
+_yaml_path = None
 
 # Nice output
 def print_json(data):
@@ -49,6 +52,13 @@ def print_json(data):
 def load_file(file_name):
     with open(file_name, 'r') as fh:
         return yaml.load(fh)
+
+def get_yaml(file_name):
+    global _yaml_path
+    if not _yaml_path:
+        _yaml_path = os.path.dirname(file_name)
+    yaml_file = os.path.basename(file_name)
+    return load_file("{}/{}".format(_yaml_path, yaml_file))
 
 def to_num_if(n):
     try:
@@ -60,153 +70,148 @@ def to_num_if(n):
     except:
         return n
 
-def walk_subgroup(jsn, group, group_path, out, matcher):
-    for key in jsn:
-        for (k,v) in walk_tree_groups(jsn[key], key, group_path + [key], matcher=matcher).items():
-            if k in out:
-                out[k]['hosts'] = list(set(out[k]['hosts'] + v['hosts']))
-            else:
-                out[k] = v
-        if group != "":
-            if 'children' in out[group]:
-                out[group]['children'] = out[group]['children'] + [key]
-            else:
-                out[group]['children'] = [key]
-    return out
+class Host:
 
-# Scan the host against matcher and assign it to groups.
-def matcher_full(matcher, host, auto_groups):
-    for match in matcher:
-        m = re.compile(match['regexp']).match(host)
-        if m:
-            if 'groups' in match:
-                for g in match['groups']:
-                    auto_groups.append(g)
-            if 'capture' in match and match['capture']:
-                for m2 in m.groups():
-                    auto_groups.append(m2)
-    return auto_groups
+    def __init__(self, host, path):
+        self.path = path
+        self.var = {}
+        self.name = ""
+        self.path = ""
+        self.tags = []
 
-def walk_hosts(jsn, group_path, matcher):
-    global _meta
+        if type(host) == dict:
+            for k in host:
+                if k == 'name':
+                    self.name = host['name']
+                elif k == 'tags':
+                    for tag in host[k]:
+                        self.tags.append(tag)
+                else:
+                    self.var[k] = host[k]
+        elif type(host) == str:
+            self.name = host
 
-    ret = {}
-    for host in jsn:
-        auto_groups = []
+        if self.name in _hostlog:
+            raise Exception("Error, host {} defined twice".format(self.name))
+        _hostlog.append(self.name)
 
-        # Check for key value format
-        # Example:
-        # - name: myhost01
-        if (type(host) == dict):
-            for hk,hv in host.items():
+        self.tags = self.tags + self.split_tag() + self.matcher_tags()
 
-                # Reserved keywords
-                if hk == "name":
-                    continue
-                if hk == "tags":
-                    for tag in host['tags']:
-                        auto_groups.append(tag)
-                    continue
+        if len(self.var) > 0:
+            _data['_meta']['hostvars'][self.name] = self.var
+        for tag in self.tags:
+            if not tag in _data:
+                _data[tag] = { "hosts": [] }
+            _data[tag]['hosts'].append(self.name)
 
-                if host['name'] not in _meta['_meta']['hostvars']:
-                    _meta['_meta']['hostvars'][host['name']] = {}
-                if hk not in _meta['_meta']['hostvars'][host['name']]:
-                    _meta['_meta']['hostvars'][host['name']][hk] = {}
-                _meta['_meta']['hostvars'][host['name']][hk] = to_num_if(hv)
 
-            # Overwrite host so we can continue like we used
-            # '- hostname' syntax.
-            host = host['name']
+    def split_tag(self):
+        tags = []
+        for part in re.compile('[^a-z]').split(self.name):
+            if part == "": continue
+            tags.append(part)
+        return tags
 
-        auto_groups = matcher_full(matcher, host, auto_groups)
+    def matcher_tags(self):
+        tag = []
+        for match in _matcher:
+            m = re.compile(match['regexp']).match(self.name)
+            if m:
+                if 'groups' in match:
+                    for g in match['groups']:
+                        tag.append(g)
+                if 'capture' in match and match['capture']:
+                    for m2 in m.groups():
+                        tag.append(m2)
+        return tag
 
-        # Split the hostname down to non-[a-z] groups and
-        # append these groups to the host.
-        for part in re.compile('[^a-z]').split(host):
-            if part == "":
-                continue
-            auto_groups.append(part)
-            auto_groups = matcher_full(matcher, host, auto_groups)
+    def group(self):
+        return "-".join(self.path)
 
-        # Assign the host to all groups generated above.
-        for grp in group_path + auto_groups + ['-'.join(group_path[:i+1]) for i in range(1,len(group_path))]:
-            if grp in ret:
-                ret[grp]['hosts'] = list(set(ret[grp]['hosts'] + [host]))
-            else:
-                ret[grp] = { "hosts": [host] }
+    def __repr__(self):
+        return "host: {} group: {} vars: {} tags: {}".format(
+                self.name, self.group(), self.var, self.tags)
 
-    return ret
+class Groups:
+    def __init__(self, groups, path=["root"]):
 
-# Parse 'inventory'
-def walk_tree_groups(jsn, group="", group_path=[], out={}, matcher=[]):
+        # Call a subgroup (or vars)
+        if type(groups) == dict:
+            for g in groups:
+                p = path + [g]
+                fullpath = "-".join(p)
+                if 'vars' == p[-1]:
+                    _data["-".join(path)]['vars'] = groups['vars']
+                elif 'include' in p[-1]:
+                    for f in groups['include']:
+                        Groups(get_yaml(f), p[:len(p)-1])
+                else:
+                    if 'hosts' != p[-1]:
+                        if not fullpath in _data:
+                            _data[fullpath] = {}
+                        if not 'children' in _data["-".join(path)]:
+                            _data["-".join(path)]['children'] = []
+                        _data["-".join(path)]['children'].append("-".join(p))
+                    Groups(groups[g], p)
 
-    # This is a dict (group or variable), call my self down the tree
-    if type(jsn) == dict:
-        out = walk_subgroup(jsn, group, group_path, out, matcher)
+        # Process groups
+        elif type(groups) == list:
+            for h in groups:
+                if 'hosts' == path[-1]:
+                    path.pop()
+                hst = Host(h, path)
+                fullpath = "-".join(path)
+                if not 'hosts' in _data[fullpath]:
+                    _data[fullpath]['hosts'] = []
+                _data[fullpath]['hosts'].append(hst.name)
 
-    # This is a list (=host), parse the host and return the data
-    elif type(jsn) == list:
-        return walk_hosts(jsn, group_path, matcher)
-    return out
+class Tag:
+    def __init__(self, tag, val):
+        for k, v in val.items():
+            if not tag in _data:
+                _data[tag] = {}
+            if not 'vars' in _data[tag]:
+                _data[tag]['vars'] = {}
+            _data[tag]['vars'][k] = v
 
-# Scan inventory -> vars for variables and assign them.
-# Example:
-# vars:
-#   - nyc
-#     - dns_search: nyc.mycorp.ltd
-#   - lon:
-#     - dns_search: lon.mycorp.ltd
-#     - dns_name: 8.8.8.8
-def walk_tree_vars(json_groups, jsn):
-    for d in json_groups:
-        if type(jsn) == dict:
-            if d in jsn:
-                v = {}
-                for jd in jsn[d]:
-                    vp = jd.split("=")
-                    v[vp[0]] = vp[1]
-                    if 'vars' in json_groups[d]:
-                        for v2 in json_groups[d]['vars']:
-                            if v2 == vp[0]:
-                                json_groups[d]['vars'][v2] = to_num_if(vp[1])
-                    else:
-                        json_groups[d]['vars'] = to_num_if(v)
-    return json_groups
+class Inventory:
+    commands = ["include", "groups", "matcher", "tagvars"]
 
-# Parse a file
-def parse(ifile, out={}, matcher=[]):
-    json_data = load_file(os.path.dirname(__file__) + "/" + ifile)
-    json_groups = {}
+    def __init__(self, ifile):
+        json_data = get_yaml(ifile)
+        global _matcher
 
-    if 'matcher' in json_data:
-      matcher = json_data['matcher'] + matcher
-    if 'groups' in json_data:
-        json_groups = walk_tree_groups(json_data['groups'], out=out, matcher=matcher)
-    if 'vars' in json_data:
-        json_groups = walk_tree_vars(json_groups, json_data['vars'])
-    if 'include' in json_data:
-        for f in json_data['include']:
-            parse(f, out, matcher)
+        for el in json_data:
+            if not el in self.commands:
+                raise Exception("Command {} not found".format(el))
 
-    return json_groups
+        if 'matcher' in json_data:
+            _matcher = json_data['matcher']
 
-# main... duh
+        if 'groups' in json_data:
+            Groups(json_data['groups'])
+
+        if 'tagvars' in json_data:
+            for tag,val in json_data['tagvars'].items():
+                Tag(tag, val)
+
 def main(argv):
     global _meta
 
     parser = argparse.ArgumentParser(description='Ansible Inventory System')
     parser.add_argument('--list', help='List all inventory groups', action="store_true")
     parser.add_argument('--host', help='List vars for a host')
+    parser.add_argument('--file', help='File to open, default inventory.yml', 
+            default='inventory.yml')
     args = parser.parse_args()
 
-    jret = parse("inventory.yml")
+    inventory = Inventory(args.file)
 
     if args.list:
-        jret['_meta'] = _meta['_meta']
-        print_json(jret)
+        print_json(_data)
     if args.host:
-        if args.host in _meta['_meta']['hostvars']:
-            print_json(_meta['_meta']['hostvars'][args.host])
+        if args.host in _data['_meta']['hostvars']:
+            print_json(_data['_meta']['hostvars'][args.host])
         else:
             print_json({})
 

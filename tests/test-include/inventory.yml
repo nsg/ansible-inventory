@@ -1,0 +1,20 @@
+---
+
+groups:
+  docker:
+    vars:
+      dvar: 1
+    include:
+      - docker.yml
+  servers:
+    sto:
+      hosts:
+        - www1.example.com
+      include:
+        - server_vars.yml
+    lon:
+      hosts:
+        - www2.example.com
+      include:
+        - server_vars.yml
+
