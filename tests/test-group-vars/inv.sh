@@ -1,4 +1,4 @@
 #!/bin/bash
 
-SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
+SCRIPTPATH=$(dirname $0)
 ./inventory.py --file $SCRIPTPATH/inventory.yml --list
