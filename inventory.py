@@ -54,6 +54,7 @@ def load_file(file_name):
 
 def get_yaml(file_name):
     script_path = os.path.dirname(os.path.realpath(__file__))
+    file_name = file_name.replace(script_path, '')
     return load_file("{}/{}".format(script_path, file_name))
 
 def to_num_if(n):
