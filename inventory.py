@@ -42,7 +42,6 @@ import argparse
 _data = { "root": {}, "_meta" : { "hostvars": {} }}
 _matcher = {}
 _hostlog = []
-_yaml_path = None
 
 # Nice output
 def print_json(data):
@@ -54,11 +53,8 @@ def load_file(file_name):
         return yaml.load(fh)
 
 def get_yaml(file_name):
-    global _yaml_path
-    if not _yaml_path and os.path.dirname(file_name) != None:
-        _yaml_path = "{}/".format(os.path.dirname(file_name))
-    yaml_file = os.path.basename(file_name)
-    return load_file("{}{}".format(_yaml_path, yaml_file))
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    return load_file("{}/{}".format(script_path, file_name))
 
 def to_num_if(n):
     try:
