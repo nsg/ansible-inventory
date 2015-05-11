@@ -4,7 +4,7 @@
 
 Define your Ansible inventory in YAML, with a lot of fancy features.
 
-I wrote this script because I have hundreds of hosts saved int the 
+I wrote this script because I have hundreds of hosts saved in the 
 default Ansible inventory format. We have structured them to multiple 
 files and grouped them to different directories to keep the volume 
 down but still we have plenty of groups and it is hard to get a good 
@@ -18,7 +18,7 @@ still saved in plain text in YAML-files checked in to the repository.
 Basically, I got a little inspiration and I had to write this and test
 it out.
 
-## Example
+## Examples
 
 You can turn this ...
 
@@ -43,15 +43,6 @@ sto-db02.mycorp.ltd
 
 ```
 
-```yaml
----
-
-- hosts: db:&sto
-  tasks:
-    - debug: msg="Hello STO!"
-
-```
-
 ... to this:
 
 ```yaml
@@ -62,20 +53,11 @@ groups:
   - sto-db02.mycorp.ltd
   - lon-db02.mycorp.ltd
 
-vars:
+tagvars:
   db:
-    - db_name=foo
+    db_name: foo
   sto:
-    - db_name=bar
-
-```
-
-```yaml
----
-
-- hosts: db:&sto
-  tasks:
-    - debug: msg="Hello STO!"
+    db_name: bar
 
 ```
 
@@ -89,13 +71,9 @@ groups:
   - sto-db02.mycorp.ltd
   - lon-db02.mycorp.ltd
 
-vars:
-  db:
-    - db_name=foo
-  sto:
-    - db_name=bar
+tagvars:
   dbslave:
-    - db_slave=true
+    db_slave: true
 
 matcher:
   - regexp: 'db02'
@@ -104,11 +82,6 @@ matcher:
 
 ```
 
-```yaml
----
+## Documentation
 
-- hosts: db:&sto
-  tasks:
-    - debug: msg="Hello STO!"
-
-```
+For Full documentation see [the wiki](https://github.com/nsg/ansible-inventory/wiki/)!
