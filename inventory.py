@@ -55,10 +55,10 @@ def load_file(file_name):
 
 def get_yaml(file_name):
     global _yaml_path
-    if not _yaml_path:
-        _yaml_path = os.path.dirname(file_name)
+    if not _yaml_path and os.path.dirname(file_name) != None:
+        _yaml_path = "{}/".format(os.path.dirname(file_name))
     yaml_file = os.path.basename(file_name)
-    return load_file("{}/{}".format(_yaml_path, yaml_file))
+    return load_file("{}{}".format(_yaml_path, yaml_file))
 
 def to_num_if(n):
     try:
