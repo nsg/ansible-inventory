@@ -1,6 +1,6 @@
 # ansible-intentory
 
-[![Build Status](https://travis-ci.org/nsg/ansible-intentory.svg?branch=master)](https://travis-ci.org/nsg/ansible-intentory)
+[![Build Status](https://travis-ci.org/nsg/ansible-inventory.svg?branch=master)](https://travis-ci.org/nsg/ansible-inventory)
 
 Define your Ansible inventory in YAML, with a lot of fancy features.
 
