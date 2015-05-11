@@ -161,7 +161,7 @@ class Groups:
                     _data[fullpath]['hosts'] = []
                 _data[fullpath]['hosts'].append(hst.name)
 
-class Tag:
+class TagVars:
     def __init__(self, tag, val):
         for k, v in val.items():
             if not tag in _data:
@@ -189,7 +189,7 @@ class Inventory:
 
         if 'tagvars' in json_data:
             for tag,val in json_data['tagvars'].items():
-                Tag(tag, val)
+                TagVars(tag, val)
 
 def main(argv):
     global _meta
