@@ -9,6 +9,9 @@
 # from Anton Lindström and Tim Rice. This code is released under the MIT
 # license.
 #
+# Repo: https://github.com/nsg/ansible-inventory
+# Wiki: https://github.com/nsg/ansible-inventory/wiki
+#
 # The MIT License (MIT)
 # 
 # Copyright (c) 2015 Stefan Berggren
