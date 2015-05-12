@@ -1,4 +1,4 @@
-# ansible-intentory
+# ansible-inventory
 
 [![Build Status](https://travis-ci.org/nsg/ansible-inventory.svg?branch=master)](https://travis-ci.org/nsg/ansible-inventory)
 
