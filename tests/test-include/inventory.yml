@@ -1,6 +1,6 @@
 ---
 
-groups:
+root:
   docker:
     vars:
       dvar: 1

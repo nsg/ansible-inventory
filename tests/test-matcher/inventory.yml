@@ -11,7 +11,7 @@ matcher:
     groups:
       - test
 
-groups:
+root:
   - stowww1.example.com
   - lonwww2.example.com
   - londb3.example.com
