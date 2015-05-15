@@ -42,7 +42,7 @@ import re
 import os
 import argparse
 
-_data = { "root": {}, "_meta" : { "hostvars": {} }}
+_data = { "_meta" : { "hostvars": {} }}
 _matcher = {}
 _hostlog = []
 
@@ -102,6 +102,8 @@ class Host:
         for tag in self.tags:
             if not tag in _data:
                 _data[tag] = { "hosts": [] }
+            if not 'hosts' in _data[tag]:
+                _data[tag]['hosts'] = []
             _data[tag]['hosts'].append(self.name)
 
 
@@ -175,25 +177,24 @@ class TagVars:
             _data[tag]['vars'][k] = v
 
 class Inventory:
-    commands = ["include", "groups", "matcher", "tagvars"]
+    commands = ["include", "matcher", "tagvars"]
 
     def __init__(self, ifile):
         json_data = get_yaml(ifile)
         global _matcher
 
-        for el in json_data:
-            if not el in self.commands:
-                raise Exception("Command {} not found".format(el))
-
         if 'matcher' in json_data:
             _matcher = json_data['matcher']
-
-        if 'groups' in json_data:
-            Groups(json_data['groups'])
 
         if 'tagvars' in json_data:
             for tag,val in json_data['tagvars'].items():
                 TagVars(tag, val)
+
+        for el in json_data:
+            if not el in self.commands:
+                _data[el] = {}
+                Groups(json_data[el], [el])
+                break
 
 def main(argv):
     global _meta

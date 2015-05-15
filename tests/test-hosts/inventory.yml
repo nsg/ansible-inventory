@@ -1,6 +1,6 @@
 ---
 
-groups:
+root:
   docker:
     hosts:
       - myhost1.example.com
