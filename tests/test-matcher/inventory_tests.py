@@ -46,6 +46,13 @@ class AnsibleInventoryTests(unittest.TestCase):
             u'com',
             u'example',
             u'root',
+            u'root-com',
+            u'root-example',
+            u'root-site', # from matcher group
+            u'root-sto',
+            u'root-stowww',
+            u'root-test', # from matcher group
+            u'root-www',
             u'site',
             u'sto',
             u'stowww',
@@ -62,6 +69,12 @@ class AnsibleInventoryTests(unittest.TestCase):
             u'lon',
             u'lonwww',
             u'root',
+            u'root-com',
+            u'root-example',
+            u'root-lon',
+            u'root-lonwww',
+            u'root-site', # from matcher groups
+            u'root-www',
             u'site',
             u'www'
         ]
@@ -75,7 +88,12 @@ class AnsibleInventoryTests(unittest.TestCase):
             u'example',
             u'lon',
             u'londb',
-            u'root'
+            u'root',
+            u'root-com',
+            u'root-db',
+            u'root-example',
+            u'root-lon',
+            u'root-londb'
         ]
         self.assertListEqual(yml['group_names'], result, msg="\nGot:    {}\nExpect: {}".format(yml['group_names'], result))
 

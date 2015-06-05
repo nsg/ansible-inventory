@@ -163,9 +163,19 @@ class Groups:
                     path.pop()
                 hst = Host(h, path)
                 fullpath = "-".join(path)
-                if not 'hosts' in _data[fullpath]:
-                    _data[fullpath]['hosts'] = []
-                _data[fullpath]['hosts'].append(hst.name)
+                for t in hst.tags:
+                    tagfullpath = "{}-{}".format(fullpath,t)
+
+                    if not tagfullpath in _data:
+                        _data[tagfullpath] = {}
+                    if not 'hosts' in _data[tagfullpath]:
+                        _data[tagfullpath]['hosts'] = []
+
+                    _data[tagfullpath]['hosts'].append(hst.name)
+
+                    if not 'children' in _data[fullpath]:
+                        _data[fullpath]['children'] = []
+                    _data[fullpath]['children'].append(tagfullpath)
 
 class TagVars:
     def __init__(self, tag, val):

@@ -44,7 +44,16 @@ class AnsibleInventoryTests(unittest.TestCase):
         yml = self.yml_inv.get_variables("myhost1.example.com")
         result = {
             'inventory_hostname': u'myhost1.example.com',
-            'group_names': [u'com', u'example', u'myhost', u'root', u'root-docker'],
+            'group_names': [
+                u'com',
+                u'example',
+                u'myhost',
+                u'root',
+                u'root-docker',
+                u'root-docker-com',
+                u'root-docker-example',
+                u'root-docker-myhost'
+                ],
             'inventory_hostname_short': u'myhost1'
             }
         self.assertDictEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
@@ -53,7 +62,17 @@ class AnsibleInventoryTests(unittest.TestCase):
         yml = self.yml_inv.get_variables("myhost2.example.com")
         result = {
             'inventory_hostname': u'myhost2.example.com',
-            'group_names': [u'com', u'example', u'myhost', u'root', u'root-docker', u'root-docker-site_a'],
+            'group_names': [
+                u'com',
+                u'example',
+                u'myhost',
+                u'root',
+                u'root-docker',
+                u'root-docker-site_a',
+                u'root-docker-site_a-com',
+                u'root-docker-site_a-example',
+                u'root-docker-site_a-myhost'
+                ],
             'inventory_hostname_short': u'myhost2'
             }
         self.assertDictEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
@@ -62,7 +81,18 @@ class AnsibleInventoryTests(unittest.TestCase):
         yml = self.yml_inv.get_variables("myhost3.example.com")
         result = {
             'inventory_hostname': u'myhost3.example.com',
-            'group_names': [u'com', u'example', u'myhost', u'root', u'root-docker', u'root-docker-site_b', u'root-docker-site_b-my_foo_group'],
+            'group_names': [
+                u'com',
+                u'example',
+                u'myhost',
+                u'root',
+                u'root-docker',
+                u'root-docker-site_b',
+                u'root-docker-site_b-my_foo_group',
+                u'root-docker-site_b-my_foo_group-com',
+                u'root-docker-site_b-my_foo_group-example',
+                u'root-docker-site_b-my_foo_group-myhost'
+                ],
             'inventory_hostname_short': u'myhost3'
             }
         self.assertDictEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
