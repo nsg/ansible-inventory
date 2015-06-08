@@ -45,7 +45,16 @@ class AnsibleInventoryTests(unittest.TestCase):
         result = {
             'inventory_hostname': u'myhost2.example.com',
             'group_names': [
-                u'com', u'example', u'myhost', u'mytag', u'root', u'root-docker'
+                u'com',
+                u'example',
+                u'myhost',
+                u'mytag',
+                u'root',
+                u'root-docker',
+                u'root-docker-com',
+                u'root-docker-example',
+                u'root-docker-myhost',
+                u'root-docker-mytag'
                 ],
             'inventory_hostname_short': u'myhost2'
             }
@@ -55,7 +64,16 @@ class AnsibleInventoryTests(unittest.TestCase):
         yml = self.yml_inv.get_variables("myhost1.example.com")
         result = {
             'inventory_hostname': u'myhost1.example.com',
-            'group_names': [u'com', u'example', u'myhost', u'root', u'root-docker'],
+            'group_names': [
+                u'com',
+                u'example',
+                u'myhost',
+                u'root',
+                u'root-docker',
+                u'root-docker-com',
+                u'root-docker-example',
+                u'root-docker-myhost'
+                ],
             'inventory_hostname_short': u'myhost1'
             }
         self.assertDictEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
