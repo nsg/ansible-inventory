@@ -3,6 +3,12 @@
 language: python
 python: "2.7"
 
+matrix:
+  allow_failures:
+    - env: COMMAND=test-devel
+  include:
+    - env: COMMAND=test-release
+    - env: COMMAND=test-devel
+
 script:
-  - make test-release
-  - make test-devel
+  - make $COMMAND
