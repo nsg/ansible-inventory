@@ -36,12 +36,26 @@ import operator
 from ansible import errors
 from ansible.inventory import Inventory
 
+from ansible import __version__ as ansible_version
+
+if ansible_version[0]!="1":
+    from ansible.parsing.dataloader import DataLoader
+    from ansible.vars import VariableManager
+
 class AnsibleInventoryTests(unittest.TestCase):
 
-    yml_inv = Inventory("{}/inv.sh".format(os.path.dirname(__file__)))
+    if ansible_version[0]=="1":
+        yml_inv = Inventory("{}/inv.sh".format(os.path.dirname(__file__)))
+    else:
+        var_manager = VariableManager()
+        dataloader = DataLoader()
+        yml_inv = Inventory(host_list="{}/inv.sh".format(os.path.dirname(__file__)),loader=dataloader,variable_manager=var_manager)
 
     def test_check_matcher_capture_on_stowww1(self):
-        yml = self.yml_inv.get_variables("stowww1.example.com")
+        if ansible_version[0]=="1":
+            yml = self.yml_inv.get_variables("stowww1.example.com")
+        else:
+            yml = self.yml_inv.get_vars("stowww1.example.com")
         result = [
             u'com',
             u'example',
@@ -62,7 +76,10 @@ class AnsibleInventoryTests(unittest.TestCase):
         self.assertListEqual(yml['group_names'], result, msg="\nGot:    {}\nExpect: {}".format(yml['group_names'], result))
 
     def test_check_matcher_capture_on_lonwww2(self):
-        yml = self.yml_inv.get_variables("lonwww2.example.com")
+        if ansible_version[0]=="1":
+            yml = self.yml_inv.get_variables("lonwww2.example.com")
+        else:
+            yml = self.yml_inv.get_vars("lonwww2.example.com")
         result = [
             u'com',
             u'example',
@@ -81,7 +98,10 @@ class AnsibleInventoryTests(unittest.TestCase):
         self.assertListEqual(yml['group_names'], result, msg="\nGot:    {}\nExpect: {}".format(yml['group_names'], result))
 
     def test_check_matcher_capture_on_londb3(self):
-        yml = self.yml_inv.get_variables("londb3.example.com")
+        if ansible_version[0]=="1":
+            yml = self.yml_inv.get_variables("londb3.example.com")
+        else:
+            yml = self.yml_inv.get_vars("londb3.example.com")
         result = [
             u'com',
             u'db',
