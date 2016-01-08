@@ -153,6 +153,11 @@ class Groups:
                             _data[fullpath] = {}
                         if not 'children' in _data["-".join(path)]:
                             _data["-".join(path)]['children'] = []
+
+                            # workaround for https://github.com/ansible/ansible/issues/13655
+                            if not 'vars' in _data["-".join(path)]:
+                                _data["-".join(path)]['vars'] = {}
+
                         _data["-".join(path)]['children'].append("-".join(p))
                     Groups(groups[g], p)
 
@@ -175,6 +180,11 @@ class Groups:
 
                     if not 'children' in _data[fullpath]:
                         _data[fullpath]['children'] = []
+
+                        # workaround for https://github.com/ansible/ansible/issues/13655
+                        if not 'vars' in _data[fullpath]:
+                            _data[fullpath]['vars'] = {}
+
                     _data[fullpath]['children'].append(tagfullpath)
 
 class TagVars:
