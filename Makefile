@@ -1,4 +1,8 @@
-test-release:
+test-ansible1:
+	pip install ansible==1.9.3
+	tests/test.sh
+
+test-latest:
 	pip install ansible
 	tests/test.sh
 
