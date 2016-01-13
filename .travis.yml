@@ -1,13 +1,15 @@
 ---
 
 language: python
-python: "2.7"
 
 matrix:
   include:
-    - env: COMMAND=test-ansible1
-    - env: COMMAND=test-latest
-    - env: COMMAND=test-devel
+    - python: "2.7"
+      env: COMMAND=test-ansible1
+    - python: "2.7"
+      env: COMMAND=test-latest
+    - python: "2.7"
+      env: COMMAND=test-devel
 
 script:
   - make $COMMAND
