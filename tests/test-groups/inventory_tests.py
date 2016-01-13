@@ -119,10 +119,12 @@ class AnsibleInventoryTests(unittest.TestCase):
 
     def test_list_hosts(self):
         yml = sorted(self.yml_inv.list_hosts())
-        if ansible_version[0]=="1":
-            result = [u'myhost1.example.com', u'myhost2.example.com', u'myhost3.example.com']
-        else:
-            result = ['myhost1.example.com', 'myhost2.example.com', 'myhost3.example.com']
+
+        # In Ansible 2, they moved from a list of hosts to a list of host objects
+        if ansible_version[0]!="1":
+            yml = list(map((lambda x : repr(x).decode('utf-8')), yml))
+
+        result = [u'myhost1.example.com', u'myhost2.example.com', u'myhost3.example.com']
         self.assertListEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
 
 if __name__ == '__main__':
