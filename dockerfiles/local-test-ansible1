@@ -1,0 +1,4 @@
+FROM local-test-base
+
+RUN pip install ansible==1.9.4
+USER user

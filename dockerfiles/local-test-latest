@@ -1,0 +1,4 @@
+FROM local-test-base
+
+RUN pip install ansible
+USER user
