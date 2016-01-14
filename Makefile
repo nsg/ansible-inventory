@@ -16,23 +16,39 @@ test-devel:
 		&& make install
 	tests/test.sh
 
+docker-test-ansible1: local-test-ansible1
+	docker run \
+		-v $(PWD):/mnt \
+		-ti local-test-ansible1 \
+		make -C /mnt test-ansible1
+
+docker-test-latest: local-test-latest
+	docker run \
+		-v $(PWD):/mnt \
+		-ti local-test-latest \
+		make -C /mnt test-latest
+
 local-test-base:
 	docker build \
 		--build-arg HOST_USER_UID=$$UID \
 		-t $@ - < dockerfiles/$@
 
-local-test-ansible1: local-test-base
+local-test-%: local-test-base
 	docker build -t $@ - < dockerfiles/$@
+
+diff-output: local-test-ansible1 local-test-latest
 	docker run \
 		-v $(PWD):/mnt \
-		-ti $@ \
-		make -C /mnt test-ansible1
-
-local-test-latest: local-test-base
-	docker build -t $@ - < dockerfiles/$@
+		-ti local-test-ansible1 \
+		./inventory.py --file tests/test-group-vars/inventory.yml --list \
+			> ansible1.out
 	docker run \
 		-v $(PWD):/mnt \
-		-ti $@ \
-		make -C /mnt test-latest
+		-ti local-test-latest \
+		./inventory.py --file tests/test-group-vars/inventory.yml --list \
+			> latest.out
 
-.PHONY: test-ansible1 test-latest test-devel local-test-ansible1
+
+.PHONY: test-ansible1 test-latest test-devel
+.PHONY: docker-test-ansible1 docker-test-latest
+.PHONY: local-test-base diff-output
