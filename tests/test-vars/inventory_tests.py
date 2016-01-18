@@ -36,33 +36,24 @@ import operator
 from ansible import errors
 from ansible.inventory import Inventory
 
-from ansible import __version__ as ansible_version
-
-if ansible_version[0]!="1":
-    from ansible.parsing.dataloader import DataLoader
-    from ansible.vars import VariableManager
+from ansible.parsing.dataloader import DataLoader
+from ansible.vars import VariableManager
 
 class AnsibleInventoryTests(unittest.TestCase):
-
-    if ansible_version[0]=="1":
-        yml_inv = Inventory("{}/inv.sh".format(os.path.dirname(__file__)))
-    else:
-        var_manager = VariableManager()
-        dataloader = DataLoader()
-        yml_inv = Inventory(host_list="{}/inv.sh".format(os.path.dirname(__file__)),loader=dataloader,variable_manager=var_manager)
+    var_manager = VariableManager()
+    dataloader = DataLoader()
+    yml_inv = Inventory(
+        host_list="{}/inv.sh".format(os.path.dirname(__file__)),
+        loader=dataloader,
+        variable_manager=var_manager
+    )
 
     def test_check_host_var_number(self):
-        if ansible_version[0]=="1":
-            yml = self.yml_inv.get_variables("myhost2.example.com")
-        else:
-            yml = self.yml_inv.get_vars("myhost2.example.com")
+        yml = self.yml_inv.get_vars("myhost2.example.com")
         self.assertEqual(yml['number'], 1, msg="Error, var number not a number")
 
     def test_check_host_var_string(self):
-        if ansible_version[0]=="1":
-            yml = self.yml_inv.get_variables("myhost2.example.com")
-        else:
-            yml = self.yml_inv.get_vars("myhost2.example.com")
+        yml = self.yml_inv.get_vars("myhost2.example.com")
         self.assertEqual(yml['string'], u'foo', msg="Error, var string not a string")
 
 if __name__ == '__main__':

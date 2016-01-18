@@ -35,36 +35,25 @@ import operator
 
 from ansible import errors
 from ansible.inventory import Inventory
-
-from ansible import __version__ as ansible_version
-
-if ansible_version[0]!="1":
-    from ansible.parsing.dataloader import DataLoader
-    from ansible.vars import VariableManager
+from ansible.parsing.dataloader import DataLoader
+from ansible.vars import VariableManager
 
 class AnsibleInventoryTests(unittest.TestCase):
-
-    if ansible_version[0]=="1":
-        yml_inv = Inventory("{}/inv.sh".format(os.path.dirname(__file__)))
-    else:
-        var_manager = VariableManager()
-        dataloader = DataLoader()
-        yml_inv = Inventory(host_list="{}/inv.sh".format(os.path.dirname(__file__)),loader=dataloader,variable_manager=var_manager)
+    var_manager = VariableManager()
+    dataloader = DataLoader()
+    yml_inv = Inventory(
+        host_list="{}/inv.sh".format(os.path.dirname(__file__)),
+        loader=dataloader,
+        variable_manager=var_manager
+    )
 
     def test_check_include_order(self):
-        if ansible_version[0]=="1":
-            yml = self.yml_inv.get_variables("myhost1.example.com")
-        else:
-            yml = self.yml_inv.get_vars("myhost1.example.com")
+        yml = self.yml_inv.get_vars("myhost1.example.com")
         self.assertEqual(yml['dvar'], 1, msg="Error, dvar include wasn't a DFS")
 
     def test_check_include_twice(self):
-        if ansible_version[0]=="1":
-            yml1 = self.yml_inv.get_variables("www1.example.com")
-            yml2 = self.yml_inv.get_variables("www1.example.com")
-        else:
-            yml1 = self.yml_inv.get_vars("www1.example.com")
-            yml2 = self.yml_inv.get_vars("www1.example.com")
+        yml1 = self.yml_inv.get_vars("www1.example.com")
+        yml2 = self.yml_inv.get_vars("www1.example.com")
 
         self.assertEqual(yml1['myvar1'], 3, msg="Error, failed to include twice!")
         self.assertEqual(yml2['myvar1'], 3, msg="Error, failed to include twice!")

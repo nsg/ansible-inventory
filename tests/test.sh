@@ -5,6 +5,6 @@ set -e
 ansible --version
 
 cd tests
-for f in */*.py; do
+for f in test-*/*.py; do
     (cd .. && ./tests/$f)
 done

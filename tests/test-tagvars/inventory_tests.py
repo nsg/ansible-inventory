@@ -35,41 +35,28 @@ import operator
 
 from ansible import errors
 from ansible.inventory import Inventory
-
-from ansible import __version__ as ansible_version
-
-if ansible_version[0]!="1":
-    from ansible.parsing.dataloader import DataLoader
-    from ansible.vars import VariableManager
+from ansible.parsing.dataloader import DataLoader
+from ansible.vars import VariableManager
 
 class AnsibleInventoryTests(unittest.TestCase):
-
-    if ansible_version[0]=="1":
-        yml_inv = Inventory("{}/inv.sh".format(os.path.dirname(__file__)))
-    else:
-        var_manager = VariableManager()
-        dataloader = DataLoader()
-        yml_inv = Inventory(host_list="{}/inv.sh".format(os.path.dirname(__file__)),loader=dataloader,variable_manager=var_manager)
+    var_manager = VariableManager()
+    dataloader = DataLoader()
+    yml_inv = Inventory(
+        host_list="{}/inv.sh".format(os.path.dirname(__file__)),
+        loader=dataloader,
+        variable_manager=var_manager
+    )
 
     def test_check_tagvar_variable(self):
-        if ansible_version[0]=="1":
-            yml = self.yml_inv.get_variables("myhost1.example.com")
-        else:
-            yml = self.yml_inv.get_vars("myhost1.example.com")
+        yml = self.yml_inv.get_vars("myhost1.example.com")
         self.assertEqual(yml['version'], 1.8, msg="Tagvar variable not set")
 
     def test_that_a_tagvars_supersedes_groupvar(self):
-        if ansible_version[0]=="1":
-            yml = self.yml_inv.get_variables("myhost1.example.com")
-        else:
-            yml = self.yml_inv.get_vars("myhost1.example.com")
+        yml = self.yml_inv.get_vars("myhost1.example.com")
         self.assertEqual(yml['env'], u'stage', msg="env failed, got {}".format(yml['env']))
 
     def test_that_a_hostvars_supersedes_tagvars(self):
-        if ansible_version[0]=="1":
-            yml = self.yml_inv.get_variables("myhost1.example.com")
-        else:
-            yml = self.yml_inv.get_vars("myhost1.example.com")
+        yml = self.yml_inv.get_vars("myhost1.example.com")
         self.assertEqual(yml['app'], u'app1', msg="app failed, got {}".format(yml['app']))
 
 if __name__ == '__main__':
