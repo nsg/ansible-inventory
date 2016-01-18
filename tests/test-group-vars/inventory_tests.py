@@ -48,29 +48,36 @@ class AnsibleInventoryTests(unittest.TestCase):
     else:
         var_manager = VariableManager()
         dataloader = DataLoader()
-        yml_inv = Inventory(host_list="{}/inventory.ini".format(os.path.dirname(__file__)),loader=dataloader,variable_manager=var_manager)
+        yml_inv = Inventory(
+            host_list="{}/inv.sh".format(os.path.dirname(__file__)),
+            loader=dataloader,
+            variable_manager=var_manager
+        )
+
 
     def test_check_group_var(self):
         if ansible_version[0]=="1":
             yml = self.yml_inv.get_variables("myhost1.example.com")
         else:
-            yml = self.yml_inv.get_vars("myhost1.example.com")
-        print(yml.keys())
+            host = self.yml_inv.list_hosts("myhost1.example.com")[0]
+            yml = self.var_manager.get_vars(self.dataloader, host=host)
         self.assertEqual(yml['version'], 1.6, msg="Failed to get group variable")
 
     def test_that_host_vars_supersedes_group_vars(self):
         if ansible_version[0]=="1":
             yml = self.yml_inv.get_variables("myhost2.example.com")
         else:
-            yml = self.yml_inv.get_vars("myhost2.example.com")
-        #self.assertEqual(yml['version'], 2.0, msg="Failed to get group variable")
+            host = self.yml_inv.list_hosts("myhost2.example.com")[0]
+            yml = self.var_manager.get_vars(self.dataloader, host=host)
+        self.assertEqual(yml['version'], 2.0, msg="Failed to get group variable")
 
     def test_that_we_can_set_vars_to_root(self):
         if ansible_version[0]=="1":
             yml = self.yml_inv.get_variables("myhost3.example.com")
         else:
-            yml = self.yml_inv.get_vars("myhost3.example.com")
-        #self.assertEqual(yml['version'], 1.0, msg="Failed to get group variable")
+            host = self.yml_inv.list_hosts("myhost3.example.com")[0]
+            yml = self.var_manager.get_vars(self.dataloader, host=host)
+        self.assertEqual(yml['version'], 1.0, msg="Failed to get group variable")
 
 if __name__ == '__main__':
     print("\n### Execute test {}\n".format( __file__))
