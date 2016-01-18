@@ -88,7 +88,9 @@ class AnsibleInventoryTests(unittest.TestCase):
         self.assertDictEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
 
     def test_list_hosts(self):
-        yml = sorted(self.yml_inv.list_hosts())
+        yml = self.yml_inv.list_hosts()
+        yml = list(map((lambda x : repr(x).decode('utf-8')), yml))
+        yml = sorted(yml)
         result = [u'myhost1.example.com', u'myhost2.example.com']
         self.assertListEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
 

@@ -48,15 +48,18 @@ class AnsibleInventoryTests(unittest.TestCase):
     )
 
     def test_check_include_order(self):
-        yml = self.yml_inv.get_vars("myhost1.example.com")
+        host = self.yml_inv.list_hosts("myhost1.example.com")[0]
+        yml = self.var_manager.get_vars(self.dataloader, host=host)
         self.assertEqual(yml['dvar'], 1, msg="Error, dvar include wasn't a DFS")
 
     def test_check_include_twice(self):
-        yml1 = self.yml_inv.get_vars("www1.example.com")
-        yml2 = self.yml_inv.get_vars("www1.example.com")
+        host = self.yml_inv.list_hosts("www1.example.com")[0]
+        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        self.assertEqual(yml['myvar1'], 3, msg="Error, failed to include twice!")
 
-        self.assertEqual(yml1['myvar1'], 3, msg="Error, failed to include twice!")
-        self.assertEqual(yml2['myvar1'], 3, msg="Error, failed to include twice!")
+        host = self.yml_inv.list_hosts("www2.example.com")[0]
+        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        self.assertEqual(yml['myvar1'], 3, msg="Error, failed to include twice!")
 
 if __name__ == '__main__':
     print("\n### Execute test {}\n".format( __file__))
