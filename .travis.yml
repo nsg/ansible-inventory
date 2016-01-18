@@ -5,8 +5,6 @@ language: python
 matrix:
   include:
     - python: "2.7"
-      env: COMMAND=test-ansible1
-    - python: "2.7"
       env: COMMAND=test-latest
     - python: "2.7"
       env: COMMAND=test-devel
