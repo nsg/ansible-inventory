@@ -1,0 +1,6 @@
+{
+  "hosts": [{
+    "name": "foo.example.com",
+    "foo": 1
+  }]
+}

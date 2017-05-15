@@ -61,6 +61,11 @@ class AnsibleInventoryTests(unittest.TestCase):
         yml = self.var_manager.get_vars(self.dataloader, host=host)
         self.assertEqual(yml['myvar1'], 3, msg="Error, failed to include twice!")
 
+    def test_try_url_include(self):
+        host = self.yml_inv.list_hosts("foo.example.com")[0]
+        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        self.assertEqual(yml['foo'], 1, msg="Error, failed to include a URL")
+
 if __name__ == '__main__':
     print("\n### Execute test {}\n".format( __file__))
     unittest.main(verbosity=2)

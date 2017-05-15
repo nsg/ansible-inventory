@@ -1,6 +1,9 @@
 ---
 
 root:
+  urly:
+    include:
+      - "http://localhost:8080/test.json"
   docker:
     vars:
       dvar: 1

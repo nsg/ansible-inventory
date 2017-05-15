@@ -13,6 +13,7 @@ docker-%:
 			libffi-dev \
 			libssl-dev \
 		&& pip install ansible==${VERSION} \
+		&& pip install requests \
 		&& cd /wd \
 		&& tests/test.sh \
 		'

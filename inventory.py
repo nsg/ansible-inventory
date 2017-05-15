@@ -42,6 +42,12 @@ import re
 import os
 import argparse
 
+try:
+    import requests
+    HTTP_MODE_ENABLED = True
+except ImportError:
+    HTTP_MODE_ENABLED = False
+
 _data = { "_meta" : { "hostvars": {} }}
 _matcher = {}
 _hostlog = []
@@ -55,10 +61,18 @@ def load_file(file_name):
     with open(file_name, 'r') as fh:
         return yaml.load(fh)
 
+# Load a JSON file from URL
+def load_url(url_path):
+    r = requests.get(url_path)
+    return json.loads(r.text)
+
 def get_yaml(file_name):
-    script_path = os.path.dirname(os.path.realpath(__file__))
-    file_name = file_name.replace(script_path, '')
-    return load_file("{}/{}".format(script_path, file_name))
+    if HTTP_MODE_ENABLED and re.match("^http", file_name):
+        return load_url(file_name)
+    else:
+        script_path = os.path.dirname(os.path.realpath(__file__))
+        file_name = file_name.replace(script_path, '')
+        return load_file("{}/{}".format(script_path, file_name))
 
 def to_num_if(n):
     try:
@@ -88,7 +102,7 @@ class Host:
                         self.tags.append(tag)
                 else:
                     self.var[k] = host[k]
-        elif type(host) == str:
+        elif type(host) == str or type(host) == unicode:
             self.name = host
 
         if self.name in _hostlog:
