@@ -1,13 +1,16 @@
 ---
 
-language: python
+sudo: required
+services:
+  - docker
 
-matrix:
-  include:
-    - python: "2.7"
-      env: COMMAND=test-latest
-    - python: "2.7"
-      env: COMMAND=test-devel
+env:
+  global:
+    - IMAGE: "ubuntu:16.04"
+  matrix:
+    - VERSION: 2.3.0
+    - VERSION: 2.2.3
+    - VERSION: 2.1.5
 
 script:
-  - make $COMMAND
+  - make docker-$IMAGE
