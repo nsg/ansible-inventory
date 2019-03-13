@@ -34,37 +34,51 @@ import unittest
 import operator
 
 from ansible import errors
-from ansible.inventory import Inventory
+from ansible.inventory.manager import InventoryManager
 from ansible.parsing.dataloader import DataLoader
-from ansible.vars import VariableManager
+from ansible.vars.manager import VariableManager
 
 class AnsibleInventoryTests(unittest.TestCase):
-    var_manager = VariableManager()
     dataloader = DataLoader()
-    yml_inv = Inventory(
-        host_list="{}/inv.sh".format(os.path.dirname(__file__)),
+    yml_inv = InventoryManager(
+        sources="{}/inv.sh".format(os.path.dirname(__file__)),
         loader=dataloader,
-        variable_manager=var_manager
     )
+    var_manager = VariableManager(loader=dataloader, inventory=yml_inv)
 
     def test_check_tagvar_variable(self):
         host = self.yml_inv.list_hosts("myhost1.example.com")[0]
-        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        yml = self.var_manager.get_vars(host=host)
         self.assertEqual(yml['version'], 1.8, msg="Tagvar variable not set")
 
-# I will ignore this test, this is anyway a unsupported scenario that I never
-# uses my self.
-#
-#    def test_that_a_tagvars_supersedes_groupvar(self):
-#        host = self.yml_inv.list_hosts("myhost1.example.com")[0]
-#        yml = self.var_manager.get_vars(self.dataloader, host=host)
-#        self.assertEqual(yml['env'], u'stage', msg="env failed, got {}".format(yml['env']))
-#
-#    def test_that_a_hostvars_supersedes_tagvars(self):
-#        host = self.yml_inv.list_hosts("myhost1.example.com")[0]
-#        yml = self.var_manager.get_vars(self.dataloader, host=host)
-#        self.assertEqual(yml['app'], u'app1', msg="app failed, got {}".format(yml['app']))
+    def test_that_a_groupvars_supersedes_tagvars(self):
+        host = self.yml_inv.list_hosts("myhost1.example.com")[0]
+        yml = self.var_manager.get_vars(host=host)
+        self.assertEqual(yml['env'], u'prod', msg="env failed, got {}".format(yml['env']))
+
+    def test_that_a_hostvars_supersedes_tagvars(self):
+        host = self.yml_inv.list_hosts("myhost1.example.com")[0]
+        yml = self.var_manager.get_vars(host=host)
+        self.assertEqual(yml['app'], u'app1', msg="app failed, got {}".format(yml['app']))
 
 if __name__ == '__main__':
     print("\n### Execute test {}\n".format( __file__))
     unittest.main(verbosity=2)
+
+'''
+  
+root:
+  docker:
+    hosts:
+      - name: myhost1.example.com
+        app: app1
+  vars:
+    env: prod
+
+
+tagvars:
+  example:
+    version: 1.8
+    env: stage
+    app: app2
+'''

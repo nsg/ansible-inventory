@@ -34,23 +34,24 @@ import unittest
 import operator
 
 from ansible import errors
-from ansible.inventory import Inventory
+from ansible.inventory.manager import InventoryManager
 
 from ansible import __version__ as ansible_version
 from ansible.parsing.dataloader import DataLoader
-from ansible.vars import VariableManager
+from ansible.vars.manager import VariableManager
 
 class AnsibleInventoryTests(unittest.TestCase):
     var_manager = VariableManager()
     dataloader = DataLoader()
-    yml_inv = Inventory(
-        host_list="{}/inv.sh".format(os.path.dirname(__file__)),
-        loader=dataloader,
-        variable_manager=var_manager
+    yml_inv = InventoryManager(
+        sources="{}/inv.sh".format(os.path.dirname(__file__)),
+        loader=dataloader
     )
 
     def test_check_host_with_tags(self):
-        yml = self.yml_inv.get_vars("myhost2.example.com")
+        yml = self.yml_inv.get_host("myhost2.example.com").get_vars()
+        yml.pop('inventory_file',None)
+        yml.pop('inventory_dir',None)
         result = {
             'inventory_hostname': u'myhost2.example.com',
             'group_names': [
@@ -70,7 +71,9 @@ class AnsibleInventoryTests(unittest.TestCase):
         self.assertDictEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
 
     def test_check_host_with_name_syntax(self):
-        yml = self.yml_inv.get_vars("myhost1.example.com")
+        yml = self.yml_inv.get_host("myhost1.example.com").get_vars()
+        yml.pop('inventory_file',None)
+        yml.pop('inventory_dir',None)
         result = {
             'inventory_hostname': u'myhost1.example.com',
             'group_names': [
@@ -89,8 +92,7 @@ class AnsibleInventoryTests(unittest.TestCase):
 
     def test_list_hosts(self):
         yml = self.yml_inv.list_hosts()
-        yml = list(map((lambda x : repr(x).decode('utf-8')), yml))
-        yml = sorted(yml)
+        yml = sorted(list(map((lambda x : repr(x).decode('utf-8')), yml)))
         result = [u'myhost1.example.com', u'myhost2.example.com']
         self.assertListEqual(yml, result, msg="\nGot:    {}\nExpect: {}".format(yml, result))
 
