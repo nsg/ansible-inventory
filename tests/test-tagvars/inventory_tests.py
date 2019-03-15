@@ -64,21 +64,3 @@ class AnsibleInventoryTests(unittest.TestCase):
 if __name__ == '__main__':
     print("\n### Execute test {}\n".format( __file__))
     unittest.main(verbosity=2)
-
-'''
-  
-root:
-  docker:
-    hosts:
-      - name: myhost1.example.com
-        app: app1
-  vars:
-    env: prod
-
-
-tagvars:
-  example:
-    version: 1.8
-    env: stage
-    app: app2
-'''
