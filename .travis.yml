@@ -8,9 +8,9 @@ env:
   global:
     - IMAGE: "ubuntu:16.04"
   matrix:
-    - VERSION: 2.3.0
-    - VERSION: 2.2.3
-    - VERSION: 2.1.5
+    - VERSION: 2.5.9
+    - VERSION: 2.6.5
+    - VERSION: 2.7.0
 
 script:
   - make docker-$IMAGE
