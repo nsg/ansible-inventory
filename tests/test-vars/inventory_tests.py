@@ -34,26 +34,26 @@ import unittest
 import operator
 
 from ansible import errors
-from ansible.inventory import Inventory
+from ansible.inventory.manager import InventoryManager
 
 from ansible.parsing.dataloader import DataLoader
-from ansible.vars import VariableManager
+from ansible.vars.manager import VariableManager
 
 class AnsibleInventoryTests(unittest.TestCase):
-    var_manager = VariableManager()
     dataloader = DataLoader()
-    yml_inv = Inventory(
-        host_list="{}/inv.sh".format(os.path.dirname(__file__)),
-        loader=dataloader,
-        variable_manager=var_manager
+    yml_inv = InventoryManager(
+        sources="{}/inv.sh".format(os.path.dirname(__file__)),
+        loader=dataloader
     )
+    var_manager = VariableManager(loader=dataloader, inventory=yml_inv)
+
 
     def test_check_host_var_number(self):
-        yml = self.yml_inv.get_vars("myhost2.example.com")
+        yml = self.yml_inv.get_host("myhost2.example.com").get_vars()
         self.assertEqual(yml['number'], 1, msg="Error, var number not a number")
 
     def test_check_host_var_string(self):
-        yml = self.yml_inv.get_vars("myhost2.example.com")
+        yml = self.yml_inv.get_host("myhost2.example.com").get_vars()
         self.assertEqual(yml['string'], u'foo', msg="Error, var string not a string")
 
 if __name__ == '__main__':
