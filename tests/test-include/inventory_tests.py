@@ -62,7 +62,7 @@ class AnsibleInventoryTests(unittest.TestCase):
 
     def test_try_url_include(self):
         host = self.yml_inv.list_hosts("foo.example.com")[0]
-        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        yml = self.var_manager.get_vars(host=host)
         self.assertEqual(yml['foo'], 1, msg="Error, failed to include a URL")
 
 if __name__ == '__main__':
