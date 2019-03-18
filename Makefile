@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 DOCKER ?= docker
-VERSION ?= 2.3.0
+VERSION ?= 2.6.5
 
 # Setup a test env in docker
 docker-%:

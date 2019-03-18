@@ -34,36 +34,35 @@ import unittest
 import operator
 
 from ansible import errors
-from ansible.inventory import Inventory
+from ansible.inventory.manager import InventoryManager
 from ansible.parsing.dataloader import DataLoader
-from ansible.vars import VariableManager
+from ansible.vars.manager import VariableManager
 
 class AnsibleInventoryTests(unittest.TestCase):
-    var_manager = VariableManager()
     dataloader = DataLoader()
-    yml_inv = Inventory(
-        host_list="{}/inv.sh".format(os.path.dirname(__file__)),
-        loader=dataloader,
-        variable_manager=var_manager
+    yml_inv = InventoryManager(
+        sources="{}/inv.sh".format(os.path.dirname(__file__)),
+        loader=dataloader
     )
+    var_manager = VariableManager(loader=dataloader, inventory=yml_inv)
 
     def test_check_include_order(self):
         host = self.yml_inv.list_hosts("myhost1.example.com")[0]
-        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        yml = self.var_manager.get_vars(host=host)
         self.assertEqual(yml['dvar'], 1, msg="Error, dvar include wasn't a DFS")
 
     def test_check_include_twice(self):
         host = self.yml_inv.list_hosts("www1.example.com")[0]
-        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        yml = self.var_manager.get_vars(host=host)
         self.assertEqual(yml['myvar1'], 3, msg="Error, failed to include twice!")
 
         host = self.yml_inv.list_hosts("www2.example.com")[0]
-        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        yml = self.var_manager.get_vars(host=host)
         self.assertEqual(yml['myvar1'], 3, msg="Error, failed to include twice!")
 
     def test_try_url_include(self):
         host = self.yml_inv.list_hosts("foo.example.com")[0]
-        yml = self.var_manager.get_vars(self.dataloader, host=host)
+        yml = self.var_manager.get_vars(host=host)
         self.assertEqual(yml['foo'], 1, msg="Error, failed to include a URL")
 
 if __name__ == '__main__':

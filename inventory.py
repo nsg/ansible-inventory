@@ -59,7 +59,7 @@ def print_json(data):
 # Load the YAML file
 def load_file(file_name):
     with open(file_name, 'r') as fh:
-        return yaml.load(fh)
+        return yaml.full_load(fh)
 
 # Load a JSON file from URL
 def load_url(url_path):
